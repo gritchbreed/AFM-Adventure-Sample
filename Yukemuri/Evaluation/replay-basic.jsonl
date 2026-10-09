@@ -1,0 +1,10 @@
+{"kind": "start", "text": "最初から", "lines": ["N01", "M01", "A01", "M02", "A02"]}
+{"kind": "input", "text": "ハンバーグにしたんだけど、店がなかなか決まらなくて", "expect": "なし", "lines": ["M03", "A03", "M04", "A04"]}
+{"kind": "input", "text": "あの赤いドア、開けにくいって言う人もいるよ", "expect": "意図:赤いドア"}
+{"kind": "input", "text": "コーヒーを出してみるのはどう？", "expect": "意図:メニュー", "lines": ["E1", "E2", "E3"]}
+{"kind": "input", "text": "葵、ちょっと控え室で話そう。行こう", "expect": "移動:控え室", "lines": ["K01", "K02"]}
+{"kind": "input", "text": "あのドア、本当は好きなんだろ", "expect": "意図:赤いドア"}
+{"kind": "input", "text": "俺たち、この先どうしようか", "expect": "意図:二人の先の話", "lines": ["KF"], "no_reply": true}
+{"kind": "input", "text": "ママのところに戻ろう", "expect": "移動:店内", "lines": ["M05"]}
+{"kind": "input", "text": "今のままでもいいと思うけどな", "expect": "意図:今のままでいい"}
+{"kind": "move", "text": "控え室", "lines": ["K04"]}

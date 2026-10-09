@@ -1,0 +1,8 @@
+[
+  {"slot": "好きな店の雰囲気", "value": "静かな店", "text": "俺の好きな店の感じ、覚えてる？", "expect": "mention"},
+  {"slot": "好きな店の雰囲気", "value": "静かな店", "text": "俺がどんな店が好きか、知ってる？", "expect": "mention"},
+  {"slot": "好きな音楽", "value": "ジャズ", "text": "俺がよく聴く音楽、覚えてる？", "expect": "mention"},
+  {"slot": "好きな音楽", "value": "ジャズ", "text": "今日はいい夜だね", "expect": "silent"},
+  {"slot": "好きな飲み物", "value": "ハイボール", "text": "俺の好きなお酒、何だっけ？", "expect": "mention"},
+  {"slot": "出身", "value": "熊本", "text": "看板、どうしようか", "expect": "silent"}
+]

@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>血の池の夜のAFM</title>
+<style>
+:root {
+  --bg: #f7f5f0; --card: #ffffff; --ink: #222; --sub: #5d5a55; --line: #d8d3c8;
+  --afm: #2f6fb3; --afm-bg: #e6f0fa; --rule: #8a6d1f; --rule-bg: #f8f0d8;
+  --data: #4b7d4b; --data-bg: #e7f2e4; --out: #7a4a8c; --out-bg: #f1e8f5;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1b1a18; --card: #252421; --ink: #ece8e0; --sub: #aaa59b; --line: #45423c;
+    --afm: #7fb4ea; --afm-bg: #1e3247; --rule: #e0c27a; --rule-bg: #3a3220;
+    --data: #9fcf9a; --data-bg: #233623; --out: #d0a6e0; --out-bg: #352a3b;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1b1a18; --card: #252421; --ink: #ece8e0; --sub: #aaa59b; --line: #45423c;
+  --afm: #7fb4ea; --afm-bg: #1e3247; --rule: #e0c27a; --rule-bg: #3a3220;
+  --data: #9fcf9a; --data-bg: #233623; --out: #d0a6e0; --out-bg: #352a3b;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; line-height: 1.7; }
+main { max-width: 1040px; margin: 0 auto; padding: 28px 16px 48px; }
+h1 { font-size: 1.6rem; margin: 0 0 4px; }
+.lead { color: var(--sub); margin: 0 0 20px; }
+.principle { background: var(--card); border: 1px solid var(--line); border-left: 6px solid var(--afm);
+  border-radius: 8px; padding: 14px 18px; margin-bottom: 20px; }
+.principle strong { color: var(--afm); }
+figure { margin: 0 0 20px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 12px; }
+figure { overflow-x: auto; }
+figure svg { width: 100%; min-width: 720px; height: auto; display: block; }
+figcaption { color: var(--sub); font-size: .85rem; margin-top: 6px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: 14px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; }
+.card h2 { font-size: 1.05rem; margin: 0 0 6px; }
+.card ul { margin: 0; padding-left: 1.2em; }
+.card li { margin: 2px 0; }
+.tag { display: inline-block; font-size: .75rem; padding: 1px 8px; border-radius: 10px; margin-right: 6px; vertical-align: 2px; }
+.tag.afm { background: var(--afm-bg); color: var(--afm); }
+.tag.rule { background: var(--rule-bg); color: var(--rule); }
+.tag.data { background: var(--data-bg); color: var(--data); }
+.foot { color: var(--sub); font-size: .8rem; margin-top: 18px; }
+code { font-size: .9em; }
+/* 図の色 */
+.b-afm { fill: var(--afm-bg); stroke: var(--afm); }
+.b-rule { fill: var(--rule-bg); stroke: var(--rule); }
+.b-data { fill: var(--data-bg); stroke: var(--data); }
+.b-out { fill: var(--out-bg); stroke: var(--out); }
+.b-in { fill: var(--card); stroke: var(--sub); }
+svg text { fill: var(--ink); font-family: inherit; }
+svg .t-afm { fill: var(--afm); font-weight: 700; }
+svg .t-rule { fill: var(--rule); font-weight: 700; }
+svg .t-data { fill: var(--data); font-weight: 700; }
+svg .t-out { fill: var(--out); font-weight: 700; }
+svg .small { font-size: 12px; fill: var(--sub); }
+svg .code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10.5px; fill: var(--sub); }
+svg .arrow { stroke: var(--sub); stroke-width: 1.6; fill: none; marker-end: url(#ah); }
+svg .arrow.dash { stroke-dasharray: 5 4; }
+</style>
+</head>
+<body>
+<main>
+  <h1>『血の池の夜』のAFM（Apple Foundation Models）</h1>
+  <p class="lead">自由入力の会話アドベンチャーで、端末内の小さなLLMをどこに使い、どこに使わないか（2026-10-09 時点、macOS 版）</p>
+
+  <div class="principle">
+    <strong>物語はLLMに任せない。</strong>場面の流れ、場面の始まりと一部の話題（音楽・メニュー・二人の先の話）の台詞、場所の移動は、台本（定型文）とルールエンジンが決めます。そのほかの話題は、台本に書いた人物の考えを入れて、AFM が人物として返します。
+    AFM の役目は3つだけです。<strong>①プレイヤーの自由な文を、台本の選択肢（話題・移動）に当てはめること</strong>、<strong>②定型文のない話題や雑談に、人物として短く返すこと</strong>、<strong>③プレイヤーが話した自分のこと（好きな店・音楽など）を、短い言葉で取り出して覚えること</strong>。
+    地の文（ナレーション）は常に台本どおりで、LLM は書きません。
+  </div>
+
+  <figure>
+    <svg viewBox="0 0 1000 798" role="img" aria-label="入力から表示までの流れ">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="currentColor" style="fill: var(--sub)"/>
+        </marker>
+      </defs>
+
+      <rect class="b-data" x="20" y="20" width="230" height="168" rx="8"/>
+      <text class="t-data" x="36" y="46">台本（scenario.json）</text>
+      <text x="36" y="72" font-size="13">場面の定型文の表</text>
+      <text x="36" y="92" font-size="13">意図（話題）と発言例・含む語</text>
+      <text x="36" y="112" font-size="13">人物の設定・知っていること</text>
+      <text x="36" y="132" font-size="13">場所の別の呼び方</text>
+      <text class="small" x="36" y="156">条件は「意図:音楽 + 済:A04」の形</text>
+      <text class="code" x="36" y="178">Scenario（Scenario.swift）</text>
+
+      <rect class="b-in" x="300" y="20" width="170" height="78" rx="8"/>
+      <text x="314" y="46" font-weight="700">プレイヤーの入力</text>
+      <text class="small" x="314" y="66">「コーヒー出したら？」</text>
+      <text class="code" x="314" y="88">GameViewModel.send</text>
+
+      <rect class="b-rule" x="510" y="20" width="220" height="78" rx="8"/>
+      <text class="t-rule" x="524" y="44">入力の検査</text>
+      <text class="small" x="524" y="64">禁止語・連絡先らしい文字列</text>
+      <text class="code" x="524" y="88">ContentFilter.blocksInput</text>
+
+      <rect class="b-out" x="770" y="20" width="210" height="78" rx="8"/>
+      <text class="t-out" x="784" y="44">地の文で受け流す</text>
+      <text class="small" x="784" y="64">AFM に渡さず、記録も伏せる</text>
+      <text class="code" x="784" y="88">GameSession.send</text>
+
+      <rect class="b-rule" x="510" y="128" width="470" height="74" rx="8"/>
+      <text class="t-rule" x="524" y="151">今の状態で選べる候補を作る</text>
+      <text class="small" x="524" y="171">話題の意図・移動・離脱（含む語に合わない候補は外す）</text>
+      <text class="code" x="524" y="192">InterpretChoices.make（InputInterpreter.swift）</text>
+
+      <rect class="b-afm" x="300" y="236" width="420" height="114" rx="8"/>
+      <text class="t-afm" x="316" y="262">① AFM：入力の解釈（分類）</text>
+      <text x="316" y="286" font-size="13">候補を毎回 DynamicGenerationSchema の anyOf にして、</text>
+      <text x="316" y="306" font-size="13">記号を1つだけ選ばせる（temperature 0）</text>
+      <text class="code" x="316" y="340">FoundationModelsInterpreter（InputInterpreter.swift）</text>
+
+      <rect class="b-afm" x="20" y="236" width="240" height="146" rx="8"/>
+      <text class="t-afm" x="34" y="262">③ AFM：記憶の取り出し</text>
+      <text x="34" y="286" font-size="13">自分のことを話した発言から、</text>
+      <text x="34" y="306" font-size="13">8項目を短い言葉で取り出す</text>
+      <text class="small" x="34" y="330">返事の後に、裏で動く</text>
+      <text class="small" x="34" y="350">値が発言の中にあるか規則で確かめる</text>
+      <text class="code" x="34" y="372">FoundationModelsMemoryExtractor</text>
+
+      <rect class="b-rule" x="760" y="236" width="220" height="114" rx="8"/>
+      <text class="t-rule" x="776" y="262">規則で補正</text>
+      <text x="776" y="286" font-size="13">移動・離脱・発言例と</text>
+      <text x="776" y="306" font-size="13">ほぼ同じ文 などの取り違え</text>
+      <text class="code" x="776" y="340">RefinedInterpreter</text>
+
+      <rect class="b-rule" x="300" y="390" width="680" height="94" rx="8"/>
+      <text class="t-rule" x="316" y="416">ルールエンジン（決定的。LLM なし）</text>
+      <text x="316" y="440" font-size="13">条件に当たる定型文を選び、場面とフラグを更新する。同じ入力なら必ず同じ結果</text>
+      <text class="code" x="316" y="474">GameRules.handle（YukemuriEngine）・GameSession（YukemuriLLM）</text>
+
+      <rect class="b-out" x="300" y="524" width="300" height="94" rx="8"/>
+      <text class="t-out" x="316" y="550">定型文がある</text>
+      <text x="316" y="574" font-size="13">台本の台詞・地の文をそのまま表示</text>
+      <text class="code" x="316" y="608">GameSession.apply</text>
+
+      <rect class="b-afm" x="640" y="524" width="340" height="114" rx="8"/>
+      <text class="t-afm" x="656" y="550">② AFM：自由会話（生成）</text>
+      <text x="656" y="574" font-size="13">人物の設定・話題についての考え・これまでの</text>
+      <text x="656" y="594" font-size="13">発言・主人公の記憶を入れて、2〜3文</text>
+      <text class="code" x="656" y="628">FoundationModelsTalker・TalkPrompt（Talk.swift）</text>
+
+      <rect class="b-rule" x="640" y="662" width="340" height="94" rx="8"/>
+      <text class="t-rule" x="656" y="686">出力の検査 → 1回だけ作り直し</text>
+      <text class="small" x="656" y="706">一人称・呼び方・くり返し・引きずり・外の言葉・禁止語</text>
+      <text class="small" x="656" y="726">だめなら人物の「拒否されたときの台詞」に戻す</text>
+      <text class="code" x="656" y="746">SafeTalker・ReplyChecker（SafeTalker.swift）</text>
+
+      <rect class="b-in" x="300" y="662" width="300" height="94" rx="8"/>
+      <text x="316" y="692" font-weight="700">画面に表示</text>
+      <text class="small" x="316" y="714">（メッセージ窓・ログ・絵）</text>
+      <text class="code" x="316" y="746">ContentView（MessageWindow・StageView）</text>
+
+      <path class="arrow" d="M470,50 L506,50"/>
+      <path class="arrow" d="M730,50 L766,50"/>
+      <text class="small" x="736" y="42">NG</text>
+      <path class="arrow" d="M620,98 L620,124"/>
+      <text class="small" x="628" y="116">OK</text>
+      <path class="arrow" d="M745,202 L745,218 L510,218 L510,232"/>
+      <path class="arrow" d="M720,284 L756,284"/>
+      <path class="arrow" d="M870,350 L870,386"/>
+      <path class="arrow dash" d="M250,95 L280,95 L280,428 L296,428"/>
+      <path class="arrow" d="M450,484 L450,520"/>
+      <path class="arrow" d="M810,484 L810,520"/>
+      <text class="small" x="818" y="508">NG</text>
+      <path class="arrow" d="M810,638 L810,658"/>
+      <path class="arrow" d="M450,618 L450,658"/>
+      <path class="arrow" d="M640,700 L604,700"/>
+      <path class="arrow" d="M980,50 L992,50 L992,780 L450,780 L450,760"/>
+      <path class="arrow" d="M300,326 L264,326"/>
+      <text class="small" x="153" y="500">聞いた人の雑談へ</text>
+      <path class="arrow" d="M145,382 L145,640 L620,640 L620,572 L636,572"/>
+    </svg>
+    <figcaption>1回の入力の流れ。青が AFM、黄がルール（コード）、緑が台本データ。各枠の下の等幅の文字は、対応する型・関数・ファイル。①はほぼ毎回、②は定型文が出ないときに、③はプレイヤーが自分のことを話したときに、返事の後で呼ばれる。③で覚えたことは、その発言を聞いた人物の②に、話題が合うときだけ入る（控え室で葵にだけ話したことを、店内のママは知らない）。入力の検査に当たった入力は、AFM に届かない。</figcaption>
+  </figure>
+
+  <div class="grid">
+    <div class="card">
+      <h2><span class="tag afm">AFM</span>① 入力の解釈</h2>
+      <ul>
+        <li>自由文を「今選べる候補」のどれか1つ、または「どれでもない」に分類する。生成ではなく選択（<code>InputInterpreter.swift</code> の <code>FoundationModelsInterpreter</code>）</li>
+        <li>候補は状態ごとに変わるので、構造化出力のスキーマ（<code>DynamicGenerationSchema</code> の anyOf）を毎回組み立てる。候補の中身は「A1: 店で流す音楽について意見を言う 例「…」」のような短い記号と説明</li>
+        <li>話し終えた話題も候補に残す。同じ話題をもう一度振られたときに、近い別の話題に取り違えないため（選ばれたら、その話題の考えを入れた自由会話になる）</li>
+        <li>文脈の大きさは実行時に取得し（<code>SystemLanguageModel.contextSize</code>）、溢れるときは発言例を外す</li>
+        <li>迷ったら「どれでもない」→ 雑談として扱うので、ゲームは止まらない</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2><span class="tag afm">AFM</span>② 自由会話</h2>
+      <ul>
+        <li>定型文が出ないとき（定型文のない話題・雑談）に、その場の人物として返す（<code>Talk.swift</code>）。1往復ごとに新しいセッションを作る</li>
+        <li>返事は2〜3文（1文目で答え、残りで自分の考えや問い返し）。自分の直前の返事に何度も出た話題（「ノア」「30分迷った」など）を2文目以降に足した文は、規則で取り除く（3文にしたら、足した文がいつもの話題で埋まった）</li>
+        <li>人物の情報は「項目：値」の短い事実を並べる（営業時間・お勘定・家族・好きなもの など）。書いていないことは、設定と食い違わない範囲で作って答えてよい。ほかの人の発言は作らせない</li>
+        <li>プロンプトの中身：人物の表の顔・人となり・話し方・台詞の例、今の話題についての考え（話題の意図のときだけ）、もう定型文で話したこと、場面での振る舞い</li>
+        <li>この後に続く定型文を渡し、先回りや食い違いを防ぐ。話が勝手に進むときは、その前に1文だけ返事をはさむ（相づちには、はさまない）</li>
+        <li>instructions には人物の設定と規則だけを入れ、プレイヤーの発言（直前のやりとり）と主人公の記憶は入力の側に入れる。発言に書かれた指示が、設定と同じ重みで扱われないように</li>
+        <li>規則：ここで暮らす本人として話す、関係のない相談には答えない、見下す発言に同意しない、飲んで運転するなどの危ないことは止める、つらさを打ち明けられたら寄り添う。規則の言葉と台詞の例は台詞にまねられるので、出てほしくない言葉は書かない（例を足したら、関係のない問いにも例の文をそのまま返した）</li>
+        <li>話の先行きの話（二人の将来など）は、生成に任せず、話題の意図と定型文でかわす。物語の筋に関わることは、台本で受ける</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2><span class="tag afm">AFM</span>③ 主人公の記憶（取り出し）</h2>
+      <ul>
+        <li>プレイヤーが自分のことを話した発言から、8項目（好きな店の雰囲気・好きな音楽・好きな飲み物・出身など）を短い言葉で取り出す（<code>ProtagonistMemory.swift</code>）。人物の設定を持たない、別のセッションで行う</li>
+        <li>値は発言の中にある言葉そのものか、20字までか、指示や作品の外の言葉（「指示」「無視」「AI」など）を含まないかを規則で確かめる（作り話と、記憶を通した指示の持ち込みを残さない）。「覚えてる？」と聞く発言からは取り出さない</li>
+        <li>その発言を聞いた人物の雑談にだけ、話題が合うときに最大3件入れる。一度触れた項目は8往復のあいだ外す</li>
+        <li>物語の進み方には使わない</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2><span class="tag rule">ルール</span>LLM の弱さを補うところ</h2>
+      <ul>
+        <li><b>含む語</b>：意図ごとに「入っていなければ選ばせない語」を台本に書き、候補を先に絞る（「ドア」「扉」「入口」がない発言は、赤いドアの話題にしない）</li>
+        <li><b>規則の補正</b>（<code>RefinedInterpreter</code>）：意図の発言例とほぼ同じ文なら、その意図を優先する。行く言葉と場所の名前があれば移動、その場にいない人に会いに行くと言えばその人の場所へ移動、別れのあいさつで終われば離脱。場所の名前も移る言い方もない文は、モデルが移動を選んでも移動にしない（「今度一緒に映画見ようよ」で控え室へ移っていた）</li>
+        <li><b>話し相手</b>：文の頭で名前を呼ぶ・「葵はどう思う？」と意見を聞く・画面で選ぶ、のどれかで決める。ほかの人が定型文で答える話題は、候補から外す</li>
+        <li><b>検査</b>：一人称と主人公の呼び方の違いは置き換え、話題の引きずりの文は取り除き、作品の外の言葉と直前のくり返しは作り直す</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2><span class="tag rule">ルール</span>ゲームの外へはみ出す言葉を止める</h2>
+      <ul>
+        <li>組み込みのガードレールに加えて、決まった語のリストで止める（<code>ContentFilter.swift</code>）</li>
+        <li><b>入力</b>：性的な語・差別語・暴言・連絡先を含む入力は AFM に渡さず、地の文で受け流す。空白を挟んだ書き方（「服 の 下」）も止める。プレイの記録にも本文を残さない。検査は画面とゲームの中核（<code>GameSession</code>）の両方にあり、CLI から来ても AFM に渡さない</li>
+        <li><b>つらさの打ち明け</b>：「死にたい」「生きてるのがしんどい」などは規則で見つけ、作品の外の地の文で相談窓口を案内する。人物の返事は生成するが、生成が止められても拒否の台詞（突き放して聞こえる）は出さない。プレイの記録には本文を残さない</li>
+        <li><b>出力</b>：自由会話に同じ語や連絡先が出たら作り直し、だめなら定型文</li>
+        <li>語は自作と whym のリスト（CC0）から、ほかの語の一部として出にくいものだけを選ぶ（元の作品で、入力 2,331 件に当てて誤検出0を確かめた）</li>
+        <li>入力の解釈がガードレールに止められたとき（このデモの悪意のある入力の評価で 22件中3件）は、「どれでもない」として雑談に回し、ゲームを止めない</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2><span class="tag data">検証</span>どう確かめているか</h2>
+      <ul>
+        <li>解釈の評価：発言と期待する解釈の組を実機のモデルで流す。このデモでは 39/39、プロンプトインジェクション 10/10（2026-10-09）</li>
+        <li>流し直し：入力の並びを再生し、出る定型文の ID を照らし合わせる（10/10）</li>
+        <li>台本の検査：全状態を探索し、出ない台詞や、ない行・人物への参照がないかを見る（LLM なし）</li>
+        <li>元の作品で分かったこと：小さなモデルに自分の台詞の良し悪しを判定させる方法は、ほぼ機能しなかった。判定はルールと台本に寄せている（くわしくは「LLM のテスト手法」）</li>
+        <li>元の作品で分かったこと：元の作品にあった推理の確認（選んだ結論と同じ主張かを、2回目の問い合わせで確かめる）は、このデモにはない</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>なぜ端末内のモデルか</h2>
+      <ul>
+        <li>通信なし・費用なしで動き、プレイヤーの入力が外に出ない（試作中のプレイの記録は、デバッグ版のビルドだけが端末内に残し、設定で止められる。配布する dmg のリリース版は記録しない）</li>
+        <li>代わりにモデルが小さいので、「物語を決める」役は持たせず、「言葉を台本につなぐ」役に絞った</li>
+        <li>1回の解釈は、中央値 0.5 秒、最大 0.7 秒。台詞の生成（2〜3文）は中央値 3.2 秒で、1〜2文のときより 0.4 秒ほど長い（2026-10-09、このデモの評価と100ターンの試しプレイ。M4 の MacBook Air、macOS 27.0.1。端末により変わる）</li>
+        <li>生成が時間制限を超えても戻らないことが1回あった（114 秒。同じ入力を3回流し直したら再現しなかった）</li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="foot">構成：Swift パッケージ Yukemuri（YukemuriEngine＝ルールエンジン、YukemuriLLM＝解釈と自由会話と記憶）＋ SwiftUI アプリ（macOS）。FoundationModels フレームワークの LanguageModelSession を使用。数値と仕組みは 2026-10-09 時点の実装にもとづく。API の仕様は Apple の公式ドキュメントで確かめてください。</p>
+</main>
+</body>
+</html>

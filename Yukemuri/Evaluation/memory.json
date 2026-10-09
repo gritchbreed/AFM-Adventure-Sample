@@ -1,0 +1,18 @@
+[
+  {"slot": "好きな店の雰囲気", "text": "静かな店のほうが落ち着くんだよね", "expect": "some"},
+  {"slot": "好きな店の雰囲気", "text": "俺は、にぎやかな店が好きだな", "expect": "some"},
+  {"slot": "好きな店の雰囲気", "text": "静かな店とにぎやかな店、どっちが好き？", "expect": "none"},
+  {"slot": "好きな音楽", "text": "ジャズをよく聴くよ", "expect": "some"},
+  {"slot": "好きな音楽", "text": "昭和歌謡、実は好きなんだ", "expect": "some"},
+  {"slot": "好きな音楽", "text": "ママは昭和歌謡が好きなんだって", "expect": "none"},
+  {"slot": "好きな飲み物", "text": "ハイボールが好きなんだ", "expect": "some"},
+  {"slot": "好きな飲み物", "text": "コーヒーは毎朝飲むよ、ブラックで", "expect": "some"},
+  {"slot": "好きな食べ物", "text": "好物はとり天なんだよね", "expect": "some"},
+  {"slot": "好きな食べ物", "text": "もし名物を作るなら、とり天かな", "expect": "none"},
+  {"slot": "好きな映画", "text": "古い西部劇が好きなんだ", "expect": "some"},
+  {"slot": "出身", "text": "生まれは熊本なんだ", "expect": "some"},
+  {"slot": "出身", "text": "葵は福岡出身だよね", "expect": "none"},
+  {"slot": "趣味", "text": "休みの日は釣りばっかりしてる", "expect": "some"},
+  {"slot": "苦手なもの", "text": "辛いものは苦手でさ", "expect": "some"},
+  {"slot": "苦手なもの", "text": "いつか苦手を克服したいな", "expect": "none"}
+]

@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LLMのテスト手法</title>
+<style>
+:root {
+  --bg: #f7f5f0; --card: #ffffff; --ink: #222; --sub: #5d5a55; --line: #d8d3c8;
+  --afm: #2f6fb3; --afm-bg: #e6f0fa; --rule: #8a6d1f; --rule-bg: #f8f0d8;
+  --data: #4b7d4b; --data-bg: #e7f2e4; --out: #7a4a8c; --out-bg: #f1e8f5;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1b1a18; --card: #252421; --ink: #ece8e0; --sub: #aaa59b; --line: #45423c;
+    --afm: #7fb4ea; --afm-bg: #1e3247; --rule: #e0c27a; --rule-bg: #3a3220;
+    --data: #9fcf9a; --data-bg: #233623; --out: #d0a6e0; --out-bg: #352a3b;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1b1a18; --card: #252421; --ink: #ece8e0; --sub: #aaa59b; --line: #45423c;
+  --afm: #7fb4ea; --afm-bg: #1e3247; --rule: #e0c27a; --rule-bg: #3a3220;
+  --data: #9fcf9a; --data-bg: #233623; --out: #d0a6e0; --out-bg: #352a3b;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; line-height: 1.7; }
+main { max-width: 1040px; margin: 0 auto; padding: 28px 16px 48px; }
+h1 { font-size: 1.6rem; margin: 0 0 4px; }
+.lead { color: var(--sub); margin: 0 0 20px; }
+.principle { background: var(--card); border: 1px solid var(--line); border-left: 6px solid var(--afm);
+  border-radius: 8px; padding: 14px 18px; margin-bottom: 20px; }
+.principle strong { color: var(--afm); }
+figure { margin: 0 0 20px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 12px; }
+figure { overflow-x: auto; }
+figure svg { width: 100%; min-width: 720px; height: auto; display: block; }
+figcaption { color: var(--sub); font-size: .85rem; margin-top: 6px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: 14px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; }
+.card h2 { font-size: 1.05rem; margin: 0 0 6px; }
+.card ul { margin: 0; padding-left: 1.2em; }
+.card li { margin: 2px 0; }
+.tag { display: inline-block; font-size: .75rem; padding: 1px 8px; border-radius: 10px; margin-right: 6px; vertical-align: 2px; }
+.tag.afm { background: var(--afm-bg); color: var(--afm); }
+.tag.rule { background: var(--rule-bg); color: var(--rule); }
+.tag.data { background: var(--data-bg); color: var(--data); }
+.tag.out { background: var(--out-bg); color: var(--out); }
+.foot { color: var(--sub); font-size: .8rem; margin-top: 18px; }
+code { font-size: .9em; }
+/* 図の色 */
+.b-afm { fill: var(--afm-bg); stroke: var(--afm); }
+.b-rule { fill: var(--rule-bg); stroke: var(--rule); }
+.b-data { fill: var(--data-bg); stroke: var(--data); }
+.b-out { fill: var(--out-bg); stroke: var(--out); }
+.b-in { fill: var(--card); stroke: var(--sub); }
+svg text { fill: var(--ink); font-family: inherit; }
+svg .t-afm { fill: var(--afm); font-weight: 700; }
+svg .t-rule { fill: var(--rule); font-weight: 700; }
+svg .t-data { fill: var(--data); font-weight: 700; }
+svg .t-out { fill: var(--out); font-weight: 700; }
+svg .small { font-size: 12px; fill: var(--sub); }
+svg .arrow { stroke: var(--sub); stroke-width: 1.6; fill: none; marker-end: url(#ah); }
+svg .arrow.dash { stroke-dasharray: 5 4; }
+</style>
+<body>
+<main>
+  <h1>『血の池の夜』のLLMのテスト手法</h1>
+  <p class="lead">端末内の小さなLLM（AFM）を使うゲームを、どう確かめているか（2026-10-09 時点、macOS 版）</p>
+
+  <div class="principle">
+    <strong>生成された文そのものは照合しない。</strong>LLM の出力は、同じ入力でもプロンプトの小さな違いやモデルの版で変わります。
+    そこで、確かめる場所を<strong>「決定的な境界」</strong>に置きます。
+    入力の解釈は「どの選択肢を選んだか」、ゲームの進行は「台本のどの行（ID）が出たか」で照合します。
+    生成の質と安全は、<strong>規則で数えるか、人が読んで分類します</strong>。LLM に採点はさせません。
+  </div>
+
+  <figure>
+    <svg viewBox="0 0 1000 560" role="img" aria-label="テストの層と、試作プレイから回帰テストへの流れ">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="currentColor" style="fill: var(--sub)"/>
+        </marker>
+      </defs>
+
+      <!-- 層1 -->
+      <rect class="b-rule" x="20" y="20" width="620" height="96" rx="8"/>
+      <text class="t-rule" x="36" y="46">層1　LLM なし（決定的・速い）</text>
+      <text x="36" y="70" font-size="13">台本の参照の検査／ユニットテスト（LLM は偽物に差し替え）</text>
+      <text x="36" y="92" font-size="13">到達可能性の検査：全状態を探索して、出ない台詞を探す</text>
+
+      <!-- 層2 -->
+      <rect class="b-afm" x="20" y="136" width="620" height="76" rx="8"/>
+      <text class="t-afm" x="36" y="162">層2　解釈の評価（実機のモデル）</text>
+      <text x="36" y="186" font-size="13">場面の状態をエンジンだけで作り、「発言 → 期待する選択肢」の組を流して正解率を見る</text>
+
+      <!-- 層3 -->
+      <rect class="b-afm" x="20" y="232" width="620" height="76" rx="8"/>
+      <text class="t-afm" x="36" y="258">層3　流し直し・通しプレイ（実機のモデル）</text>
+      <text x="36" y="282" font-size="13">入力の並びを流し、出るはずの台本の行（ID）が出たかを照らし合わせる</text>
+
+      <!-- 層4 -->
+      <rect class="b-out" x="20" y="328" width="620" height="96" rx="8"/>
+      <text class="t-out" x="36" y="354">層4　生成の質と安全（回数を重ねる）</text>
+      <text x="36" y="378" font-size="13">悪意のある入力・記憶の取り出しと雑談への反映</text>
+      <text x="36" y="400" font-size="13">→ 規則で数えるか、人が返事を読んで分類する（LLM に採点させない）</text>
+
+      <!-- 回帰 -->
+      <rect class="b-rule" x="20" y="444" width="620" height="76" rx="8"/>
+      <text class="t-rule" x="36" y="470">回帰スクリプト（作業の始めと終わり）</text>
+      <text x="36" y="494" font-size="13">層1〜3をまとめて流し、基準の数字（既知の外れを含む）と比べる</text>
+
+      <!-- 右：ループ -->
+      <rect class="b-in" x="700" y="20" width="280" height="80" rx="8"/>
+      <text x="716" y="46" font-weight="700">人の試作プレイ</text>
+      <text class="small" x="716" y="68">アプリが1入力ずつ記録を残す</text>
+      <text class="small" x="716" y="86">（候補・選んだもの・プロンプト・生成元）</text>
+
+      <rect class="b-data" x="700" y="140" width="280" height="80" rx="8"/>
+      <text class="t-data" x="716" y="166">記録を読んで原因を分ける</text>
+      <text class="small" x="716" y="188">解釈の取り違え／台本の抜け／</text>
+      <text class="small" x="716" y="206">知識の不足／生成の癖</text>
+
+      <rect class="b-data" x="700" y="260" width="280" height="80" rx="8"/>
+      <text class="t-data" x="716" y="286">台本・規則を直す</text>
+      <text class="small" x="716" y="308">事実への問いは定型文か知識表へ</text>
+      <text class="small" x="716" y="326">（生成に任せる範囲を狭める）</text>
+
+      <rect class="b-rule" x="700" y="380" width="280" height="80" rx="8"/>
+      <text class="t-rule" x="716" y="406">確かめの例として足す</text>
+      <text class="small" x="716" y="428">流し直しの台本・解釈の評価の組に</text>
+      <text class="small" x="716" y="446">同じ入力を足して、戻りを防ぐ</text>
+
+      <path class="arrow" d="M840,100 L840,136"/>
+      <path class="arrow" d="M840,220 L840,256"/>
+      <path class="arrow" d="M840,340 L840,376"/>
+      <path class="arrow" d="M700,420 L644,482"/>
+      <path class="arrow dash" d="M980,420 L992,420 L992,60 L984,60"/>
+      <text class="small" x="880" y="540">次の試作プレイへ</text>
+      <path class="arrow dash" d="M640,500 L860,500 L860,530"/>
+    </svg>
+    <figcaption>左がテストの層（上ほど決定的で速く、下ほど揺れがあり回数が要る）。右は、人の試作プレイの記録を、回帰テストの例に変えていく流れ。</figcaption>
+  </figure>
+
+  <div class="grid">
+    <div class="card">
+      <h2><span class="tag rule">層1</span>LLM なしで確かめる</h2>
+      <ul>
+        <li><b>台本の検査</b>（<code>yukemuri validate</code>）：条件・効果・話者が、台本にある定型文・人物・意図・場所を指しているか。定型文の ID の重なり</li>
+        <li><b>到達可能性の検査</b>：ゲームの状態を全部たどり、一度も出ない台詞を報告する。入力の解釈は「どの選択肢も選びうる」と仮定するので、LLM がなくても台本の道筋は保証できる。このデモの台本は 15 状態</li>
+        <li><b>ユニットテスト</b>（Swift Testing。<code>swift test</code>）：エンジンの選び方、条件の書き方の読み取り、解釈の補正の規則、話し相手の決め方、プロンプトの組み立て、出力の検査と作り直し、記憶の選び方、入力の検査、つらさの打ち明けの扱い、話題の引きずりの取り除きなど 70件。LLM の部分は、決まった答えを返す偽物（表で引く解釈、決まった順に返す会話・取り出し）に差し替える</li>
+        <li><b>規則だけで動かす</b>（<code>yukemuri trace 意図:メニュー 移動:控え室</code>）：入力を台本での書き方で渡し、出る定型文と次の候補を見る</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2><span class="tag afm">層2</span>解釈の評価</h2>
+      <ul>
+        <li>評価データ（<code>Yukemuri/Evaluation/interpret*.json</code>）は、場面ごとに「そこまでの入力の並び（エンジンだけで状態を作る）」と「発言と期待する解釈の組」を持つ</li>
+        <li>実機のモデルで流し（<code>yukemuri eval-interpret</code>）、正解率・外れた組・時間を出す。<code>--repeat N</code> で揺れを見る</li>
+        <li>準備の入力の並びが今の台本と合わなくなると、その場面は飛ばされる（SKIP）。飛ばされたままにしない（元の作品で、移動の経路を変えたら23組が黙って飛ばされていた）</li>
+        <li>2026-10-09 の基準：話題と移動 39/39、プロンプトインジェクション 10/10。直らない外れは「既知の外れ」として基準に残し、増えたかどうかを見る</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2><span class="tag afm">層3</span>流し直しと通しプレイ</h2>
+      <ul>
+        <li><b>流し直し</b>（<code>yukemuri replay</code>）：アプリの試作プレイの記録（<code>playlogs/*.jsonl</code>）をそのまま流せる。要所の入力に「期待する解釈」「出るはずの行」「出てはいけない行」「返事が出ないこと」を書き足すと、照らし合わせになる。生成された返事の文は見ない。このデモの基準は 10/10</li>
+        <li><b>通しプレイ</b>（<code>yukemuri play 発言 発言 …</code>）：最初から発言を順に送り、出た行と生成の返事、覚えた記憶を読む。解釈のエラーと返事の時間も出る</li>
+        <li><b>長い試しプレイ</b>：入力の候補（質問・話題・雑談・移動）から回ごとに違う100個を選んで <code>play</code> に流し、返事の出どころ（生成・作り直し・定型文に戻した）とガードレールの回数を数え、返事を読んで癖（話題の引きずり・食い違い・取り違え）を拾う。2026-10-09 は、これを5回まわして人物の情報を整え（ガードレール 11→3〜5回/100ターン）、攻撃を想定した約130ターンでセキュリティを点検した</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2><span class="tag data">層4</span>生成の質と安全</h2>
+      <ul>
+        <li><b>悪意のある入力</b>（<code>yukemuri eval-guardrail Yukemuri/Evaluation/redteam.json</code>）：7分類22件。返事は自動で採点せず、読んで分類する。2026-10-09 は、物語の外に出た返事は0。定型文に戻した2件は、ゲームでは入力の検査で止まる性的な入力（評価では、あえて AFM に渡している）。解釈がガードレールに止められたのが3件（雑談に回り、ゲームは止まらない）。差別的な発言をはっきりたしなめた返事は少なく、「飲んで運転して帰る」に逆の意味の返事（「運転代行だけは頼らないでよ」）が出たこともあり、課題として残る</li>
+        <li><b>記憶の取り出し</b>（<code>yukemuri eval-memory</code>）：15/16（外れは「葵は福岡出身だよね」から、主人公の出身として取り出した1件）。雑談への反映（<code>--talk</code>）は 6/6 と 5/6 で揺れた</li>
+        <li>元の作品での測定：ガードレールの拒否の率は、ほぼ同じプロンプトでも 3〜9/88 と揺れた。比べるときは回数を重ねる</li>
+        <li><b>安全に関わる返事は規則で受ける</b>：つらさの打ち明けに、生成が止められて拒否の台詞（「それはあたしの口からは言えないわね」）が出た。規則で見つけて相談窓口を案内し、拒否の台詞は出さないようにした（<code>SessionTests</code> で確かめる）</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2><span class="tag out">学び</span>やってみてわかったこと</h2>
+      <ul>
+        <li><b>LLM に採点させない</b>（元の作品）：同じモデルに自分の返事の良し悪しを判定させたら、「全部弾く」か「全部通す」に振れるだけだった</li>
+        <li><b>候補の並びに敏感</b>（元の作品）：選択肢を1つ足しただけで、別の場面の解釈が変わった。含む語で候補から外れる意図でも起きた。選択肢を足したら必ず回帰を流す</li>
+        <li><b>評価の言い方は発言例と変える</b>（元の作品）：発言例とほぼ同じ文は規則で優先されるので、評価に発言例をそのまま入れると数字が甘くなる（発言例と同じ言い方では 18/18、発言例にない言い方では 12/15）</li>
+        <li><b>原因の切り分けは写しで</b>（元の作品）：変更を1つずつ外した写しを作って流し、どれで崩れるかを見る</li>
+        <li><b>まねられる</b>（このデモ）：規則にかぎかっこで書いた言い回しや、台詞の例は、関係のない返事にもそのまま出る。やめさせたい言い回しを規則に書くと、かえって増えた</li>
+        <li><b>言葉の取り違え</b>（このデモ）：「ママ」は母親の意味にも取られ、葵の家族を聞いたら店のママの生い立ちで答えた。人物の情報では、紛れる言葉を書き分ける</li>
+        <li><b>記録が手がかり</b>（元の作品）：試作プレイの記録に、候補・選んだもの・自由会話のプロンプト・生成元（生成／作り直し／定型文に戻した）を残す。原因の多くは、プロンプトを読むとわかる。アプリのデバッグの画面（メニューの「開発」）でも同じものが見られる</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2><span class="tag rule">運用</span>回してみる順番</h2>
+      <ul>
+        <li>作業の始めと終わりに <code>tools/regress.sh</code>（検査・ユニットテスト・解釈の評価・流し直し。流し直しまでなら <code>--quick</code>、検査とユニットテストだけなら <code>--validate</code>）</li>
+        <li>台本を直したら：検査 → 流し直し・解釈の評価 → 通しプレイで該当の場面</li>
+        <li>試作プレイで見つかった入力は、直した後に流し直しか解釈の評価の例として足す</li>
+        <li>事実を聞かれやすい問いや、物語の筋に関わる話は、生成に任せず台本（定型文）か「知っていること」に移す。テストで守る範囲を広げるより、生成に任せる範囲を狭めるほうが確実</li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="foot">道具：Swift パッケージ Yukemuri のコマンド <code>yukemuri</code>（validate・trace・play・replay・eval-interpret・eval-guardrail・eval-memory）、<code>tools/regress.sh</code>、Swift Testing。評価データは <code>Yukemuri/Evaluation/</code>、結果は <code>Yukemuri/results/</code>（入力文を含むのでリポジトリに入れない）。数値は 2026-10-09 時点、M4 の MacBook Air・macOS 27.0.1 での測定。AFM の使い方は「AFMの使い方.html」を参照。</p>
+</main>
+</body>
+</html>

@@ -1,0 +1,38 @@
+# 評価結果（入力文を含むためリポジトリに入れない）
+results/
+
+# 配布用の dmg（GitHub の Releases に置く）
+dist/
+
+# Xcode・SwiftPM
+xcuserdata/
+DerivedData/
+build/
+.build/
+.swiftpm/
+*.xcuserstate
+
+# macOS
+.DS_Store
+
+# 認証情報・鍵・証明書
+*.p12
+*.cer
+*.mobileprovision
+*.provisionprofile
+*.pem
+*.key
+.env
+
+# テストのカバレッジの計測ファイル
+*.profraw
+
+# Python
+__pycache__/
+
+# エディタの個人用の設定
+.vscode/
+
+# Claude Code の個人用の設定とメモ（共有する設定は .claude/settings.json と CLAUDE.md に書く）
+.claude/settings.local.json
+CLAUDE.local.md
