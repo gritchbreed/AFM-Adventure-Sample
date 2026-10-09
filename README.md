@@ -1,5 +1,6 @@
 # 血の池の夜 — Apple Foundation Models の会話デモ
 
+<img width="985" height="695" alt="Image" src="https://github.com/user-attachments/assets/445ae03d-6842-4093-98bb-a16329f2adcf" />
 端末内の LLM（Apple Foundation Models）で、自由に入力した言葉に登場人物が答える、小さな会話アドベンチャーです（macOS）。
 
 開店前のスナック「血の池」で、付き合っている葵と、店のママと一緒に、「若いお客さんにも来てもらうには？」を話します。店内ではママの意見を聞き、控え室では葵と相談します。終わりはありません。
